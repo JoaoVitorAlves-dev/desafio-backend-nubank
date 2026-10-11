@@ -1,6 +1,7 @@
 package joao.alves.desafionubank.desafionubank.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record ContatosResponse(
         Long id,
@@ -9,6 +10,6 @@ public record ContatosResponse(
         Boolean situacao,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Long clientesId
+        Set<Long> clientesId
 ) {
 }

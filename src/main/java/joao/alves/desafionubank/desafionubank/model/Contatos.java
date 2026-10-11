@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_contatos")
@@ -35,6 +37,6 @@ public class Contatos {
     private LocalDateTime updatedAt;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "contatos")
-    private Clientes clientes;
+    private Set<Clientes> clientes = new HashSet<>();
 
 }
