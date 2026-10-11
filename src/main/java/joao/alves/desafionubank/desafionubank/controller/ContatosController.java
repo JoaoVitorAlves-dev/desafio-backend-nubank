@@ -1,6 +1,7 @@
 package joao.alves.desafionubank.desafionubank.controller;
 
 import joao.alves.desafionubank.desafionubank.dto.request.ContatosRequest;
+import joao.alves.desafionubank.desafionubank.dto.response.ClientesResponse;
 import joao.alves.desafionubank.desafionubank.dto.response.ContatosResponse;
 import joao.alves.desafionubank.desafionubank.model.Clientes;
 import joao.alves.desafionubank.desafionubank.service.ContatosService;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -30,7 +32,7 @@ public class ContatosController {
     }
 
     @GetMapping("/contatos/{id}/clientes")
-    public ResponseEntity<Set<Clientes>> listarClientesDoContato(@PathVariable Long id) {
+    public ResponseEntity<List<ClientesResponse>> listarClientesDoContato(@PathVariable Long id) {
         return ResponseEntity.ok(contatosService.listarClientes(id));
     }
 

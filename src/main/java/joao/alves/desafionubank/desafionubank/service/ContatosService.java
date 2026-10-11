@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import joao.alves.desafionubank.desafionubank.dto.request.ContatosRequest;
 import joao.alves.desafionubank.desafionubank.dto.response.ClientesResponse;
 import joao.alves.desafionubank.desafionubank.dto.response.ContatosResponse;
+import joao.alves.desafionubank.desafionubank.mapper.ClientesMapper;
 import joao.alves.desafionubank.desafionubank.mapper.ContatosMapper;
 import joao.alves.desafionubank.desafionubank.model.Clientes;
 import joao.alves.desafionubank.desafionubank.model.Contatos;
@@ -14,7 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.beans.Transient;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -22,20 +23,17 @@ import java.util.Set;
 public class ContatosService {
 
     private final ContatosRepository contatosRepository;
-    private final ClientesRepository clientesRepository;
 
     @Transactional
     public ContatosResponse cadastrar(ContatosRequest contatosRequest) {
-        if (!clientesRepository.findById(contatosRequest.clientesId())) {
-            throw new RuntimeException("Clientes não existente.");
-        }
         Contatos save = contatosRepository.save(ContatosMapper.toEntity(contatosRequest));
         return ContatosMapper.toDTO(save);
     }
 
-    public Set<Clientes> listarClientes(Long id) {
-        Contatos contatos = contatosRepository.findById(id).orElseThrow(() -> new RuntimeException("Contato não encontrado."));
-        return contatos.getClientes();
+    public List<ClientesResponse> listarClientes(Long id) {
+        return buscarContato(id).getClientes().stream()
+                .map(ClientesMapper::toDTO)
+                .toList();
     }
 
     public Page<ContatosResponse> listar(Pageable pageable) {
@@ -43,16 +41,28 @@ public class ContatosService {
     }
 
     @Transactional
-    public ContatosResponse atualizar(Long id, ContatosRequest contatosRequest) {
-        contatosRepository.findById(id).orElseThrow(() -> new RuntimeException("Contato não existe."));
-        Contatos entity = ContatosMapper.toEntity(contatosRequest);
-        entity.setId(id);
-        return ContatosMapper.toDTO(contatosRepository.save(entity));
+    public ContatosResponse atualizar(Long id, ContatosRequest request) {
+        Contatos contato = buscarContato(id);
+        contato.setTipo(request.tipo());
+        contato.setConteudo(request.conteudo());
+        if (request.situacao() != null) {
+            contato.setSituacao(request.situacao());
+        }
+        return ContatosMapper.toDTO(contatosRepository.save(contato));
     }
 
     @Transactional
     public void deletarContato(Long id) {
+        Contatos contato = buscarContato(id);
+        if (!contato.getClientes().isEmpty()) {
+            throw new RuntimeException("Contato possui clientes vinculados.");
+        }
         contatosRepository.deleteById(id);
+    }
+
+    private Contatos buscarContato(Long id) {
+        return contatosRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contato não encontrado."));
     }
 
 }

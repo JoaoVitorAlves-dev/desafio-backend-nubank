@@ -31,6 +31,7 @@ public class Contatos {
     private Boolean situacao = true;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

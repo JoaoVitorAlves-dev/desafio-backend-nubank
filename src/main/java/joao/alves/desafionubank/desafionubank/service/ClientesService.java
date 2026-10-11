@@ -9,6 +9,7 @@ import joao.alves.desafionubank.desafionubank.mapper.ContatosMapper;
 import joao.alves.desafionubank.desafionubank.model.Clientes;
 import joao.alves.desafionubank.desafionubank.model.Contatos;
 import joao.alves.desafionubank.desafionubank.repository.ClientesRepository;
+import joao.alves.desafionubank.desafionubank.repository.ContatosRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +20,16 @@ import org.springframework.stereotype.Service;
 public class ClientesService {
 
     private final ClientesRepository clientesRepository;
+    private final ContatosRepository contatosRepository;
 
     @Transactional
     public ClientesResponse cadastrar(ClientesRequest clientesRequest) {
         if (clientesRepository.existsByNome(clientesRequest.nome())) {
             throw new RuntimeException("Nome já existe");
         }
-        Clientes save = clientesRepository.save(ClientesMapper.toEntity(clientesRequest));
+        Clientes entity = ClientesMapper.toEntity(clientesRequest);
+        entity.setContatos(buscarContato(clientesRequest.contatosId()));
+        Clientes save = clientesRepository.save(entity);
         return ClientesMapper.toDTO(save);
     }
 
@@ -33,28 +37,44 @@ public class ClientesService {
         return clientesRepository.findAll(pageable).map(ClientesMapper::toDTO);
     }
 
-    public Contatos listarContatosDeCliente(Long id) {
-        Clientes clientes = clientesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não possui contatos."));
-        return clientes.getContatos();
+    public ContatosResponse listarContatosDeCliente(Long id) {
+        Contatos contatos = buscarCliente(id).getContatos();
+        if (contatos == null) {
+            throw new RuntimeException("Cliente não possui contato.");
+        }
+        return  ContatosMapper.toDTO(contatos);
     }
 
     @Transactional
     public ClientesResponse atualizarCliente(Long id, ClientesRequest clientesRequest) {
-        if (clientesRepository.existsByNome(clientesRequest.nome())) {
+        Clientes cliente = buscarCliente(id);
+        if (clientesRepository.existsByNomeAndIdNot(clientesRequest.nome(), id)) {
             throw new RuntimeException("Nome já existe.");
         }
-        clientesRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
-
-        Clientes entity = ClientesMapper.toEntity(clientesRequest);
-        entity.setId(id);
-        return ClientesMapper.toDTO(clientesRepository.save(entity));
+        cliente.setNome(clientesRequest.nome());
+        if (clientesRequest.situacao() != null) {
+            cliente.setSituacao(clientesRequest.situacao());
+        }
+        cliente.setContatos(buscarContato(clientesRequest.contatosId()));
+        return ClientesMapper.toDTO(clientesRepository.save(cliente));
     }
 
     @Transactional
     public void deletar(Long id) {
+        if (!clientesRepository.existsById(id)) {
+            throw new RuntimeException("Cliente não encontrado.");
+        }
         clientesRepository.deleteById(id);
     }
 
+    private Clientes buscarCliente(Long id) {
+        return clientesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
+    }
+
+    private Contatos buscarContato(Long id) {
+        return contatosRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contato não encontrado"));
+    }
 
 }

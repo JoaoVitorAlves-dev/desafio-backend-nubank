@@ -11,15 +11,18 @@ public class ClientesMapper {
     public Clientes toEntity(ClientesRequest clientesRequest) {
         Clientes clientes = new Clientes();
         clientes.setNome(clientesRequest.nome());
-        clientes.setSituacao(clientesRequest.situacao());
-        clientes.setCreatedAt(clientesRequest.createdAt());
-        clientes.setUpdatedAt(clientesRequest.updatedAt());
+        if (clientesRequest.situacao() != null) {
+            clientes.setSituacao(clientesRequest.situacao());
+        }
         return clientes;
     }
 
     public ClientesResponse toDTO(Clientes clientes) {
+        Long contatosId = clientes.getContatos() != null ? clientes.getContatos().getId() : null;
+
         return new ClientesResponse(
-                clientes.getId(), clientes.getNome(), clientes.getSituacao(), clientes.getCreatedAt(), clientes.getUpdatedAt(), clientes.getContatos().getId()
+                clientes.getId(), clientes.getNome(), clientes.getSituacao(), clientes.getCreatedAt(),
+                clientes.getUpdatedAt(), contatosId
         );
     }
 

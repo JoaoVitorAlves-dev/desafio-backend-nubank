@@ -16,9 +16,9 @@ public class ContatosMapper {
         Contatos contatos = new Contatos();
         contatos.setTipo(contatosRequest.tipo());
         contatos.setConteudo(contatosRequest.conteudo());
-        contatos.setSituacao(contatosRequest.situacao());
-        contatos.setCreatedAt(contatosRequest.createdAt());
-        contatos.setUpdatedAt(contatosRequest.updatedAt());
+        if (contatosRequest.situacao() != null) {
+            contatos.setSituacao(contatosRequest.situacao());
+        }
         return contatos;
     }
 
