@@ -2,6 +2,7 @@ package joao.alves.desafionubank.desafionubank.service;
 
 import jakarta.transaction.Transactional;
 import joao.alves.desafionubank.desafionubank.dto.request.ContatosRequest;
+import joao.alves.desafionubank.desafionubank.dto.response.ClientesResponse;
 import joao.alves.desafionubank.desafionubank.dto.response.ContatosResponse;
 import joao.alves.desafionubank.desafionubank.mapper.ContatosMapper;
 import joao.alves.desafionubank.desafionubank.model.Clientes;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
 import java.util.Set;
 
 @Service
