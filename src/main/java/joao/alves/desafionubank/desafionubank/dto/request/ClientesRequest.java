@@ -6,7 +6,6 @@ public record ClientesRequest(
         String nome,
         Boolean situacao,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        Long contatosId
+        LocalDateTime updatedAt
 ) {
 }
